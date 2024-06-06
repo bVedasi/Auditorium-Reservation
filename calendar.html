@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .calendar {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .day {
+      width: 14.28%;
+      border: 1px solid #ddd;
+      padding: 10px;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+    .day:hover {
+      background-color: #f0f0f0;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h3 class="text-center">Select a Date</h3>
+    <div class="controls">
+      <button class="btn btn-secondary" id="prevMonth">Previous</button>
+      <h4 id="monthYear"></h4>
+      <button class="btn btn-secondary" id="nextMonth">Next</button>
+    </div>
+    <div class="calendar">
+      <!-- Days will be dynamically generated here -->
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const calendarElement = document.querySelector('.calendar');
+      const monthYearElement = document.getElementById('monthYear');
+      const prevMonthButton = document.getElementById('prevMonth');
+      const nextMonthButton = document.getElementById('nextMonth');
+
+      let currentMonth = new Date().getMonth();
+      let currentYear = new Date().getFullYear();
+
+      function generateCalendar(month, year) {
+        calendarElement.innerHTML = '';
+        monthYearElement.textContent = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+        
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        for (let i = 0; i < firstDay; i++) {
+          const emptyCell = document.createElement('div');
+          emptyCell.className = 'day';
+          calendarElement.appendChild(emptyCell);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dayElement = document.createElement('div');
+          dayElement.className = 'day';
+          dayElement.textContent = day;
+          dayElement.addEventListener('click', function() {
+            const selectedDate = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            window.parent.postMessage({ date: selectedDate }, '*');
+          });
+          calendarElement.appendChild(dayElement);
+        }
+      }
+
+      prevMonthButton.addEventListener('click', function() {
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        generateCalendar(currentMonth, currentYear);
+      });
+
+      nextMonthButton.addEventListener('click', function() {
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        generateCalendar(currentMonth, currentYear);
+      });
+
+      generateCalendar(currentMonth, currentYear);
+    });
+  </script>
+</body>
+</html>
